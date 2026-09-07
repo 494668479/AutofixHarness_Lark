@@ -1,0 +1,8 @@
+# Python dependencies generated from Autofix/tools/*.py import analysis.
+#
+# Current Python source imports only:
+# - Python standard library modules
+# - Autofix local modules under Autofix/tools
+#
+# No third-party Python package is required at the moment.
+# Keep this file so autoSetup.py and future changes have one stable pip entry.

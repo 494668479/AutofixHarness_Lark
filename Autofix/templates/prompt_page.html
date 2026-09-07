@@ -1,0 +1,44 @@
+${message_block}
+<section class="panel">
+  <h2>自定义 Prompt</h2>
+  <form method="post" action="/prompt/save">
+    <div class="row">
+      <label>首次 Prompt</label>
+      <textarea name="prompt_template" style="min-height:360px;">${prompt_template}</textarea>
+    </div>
+    <div class="row">
+      <label>二次 Prompt</label>
+      <textarea name="followup_prompt_template" style="min-height:360px;">${followup_prompt_template}</textarea>
+    </div>
+    <div class="actions">
+      <button class="btn primary" type="submit">保存提示词</button>
+      <button class="btn" type="submit" name="reset_default" value="1" onclick="return confirm('恢复为默认提示词？');">恢复默认</button>
+    </div>
+  </form>
+</section>
+<section class="panel" style="margin-top:16px;">
+  <h2>强制输出格式</h2>
+  <p><code>修复思路：</code> 必填，说明判断依据、定位方向、采用或放弃的方案。</p>
+  <p><code>本轮处理：</code> 必填，说明本轮实际做了什么；未修改时说明原因。</p>
+  <p><code>验证情况：</code> 必填，说明已运行或建议运行的语法检查、编译、测试。</p>
+  <p><code>风险说明：</code> 必填，说明可能影响范围；无明显风险则写“未发现明显风险”。</p>
+  <p><code>修复状态：</code> 最后一行必须严格为“已完成”“未完成”“无法修复”三者之一。</p>
+</section>
+<section class="panel" style="margin-top:16px;">
+  <h2>可用占位符</h2>
+  <p><code>{{task_info}}</code> 任务基础信息，包含项目配置、WorkRoot、记录ID、分支、worktree 路径、修复版本和 Base 摘要。</p>
+  <p><code>{{source_message}}</code> 飞书收到的原始消息内容。</p>
+  <p><code>{{base_fields}}</code> 多维表格当前行的完整字段 JSON。</p>
+  <p><code>{{context_snapshot}}</code> 首次 Prompt 使用的工具层上下文收集结果。</p>
+  <p><code>{{worktree_path}}</code> 当前任务的 worktree 路径。</p>
+  <p><code>{{record_id}}</code> 当前多维表格记录 ID。</p>
+  <p><code>{{branch_name}}</code> 当前任务使用的 git 分支名。</p>
+  <p><code>{{workroot_name}}</code> 当前项目 WorkRoot 名称。</p>
+  <p><code>{{repair_version}}</code> 当前任务匹配到的修复版本。</p>
+  <p><code>{{issue_summary}}</code> 从消息和多维表格行生成的任务摘要。</p>
+  <p><code>{{previous_ai_reply}}</code> 二次 Prompt 使用的上一轮 AI 回复。</p>
+  <p><code>{{current_diff}}</code> 二次 Prompt 使用的当前 git diff / status。</p>
+  <p><code>{{verify_output}}</code> 二次 Prompt 使用的上一轮工具层验证结果。</p>
+  <p><code>{{first_prompt}}</code> 二次 Prompt 可引用的首轮 Prompt 原文。</p>
+  <p class="muted">如果提示词中没有使用占位符，系统会在末尾自动追加任务信息、原始信息、Base 行字段、上下文快照，以及二次 Prompt 所需的上一轮回复、当前 diff 和验证结果。</p>
+</section>

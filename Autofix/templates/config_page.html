@@ -1,0 +1,54 @@
+${message_block}
+<div class="grid two-col">
+  <section class="panel">
+    <h2>全局配置</h2>
+    <form method="post" action="/global/save">
+      <div class="row"><label>并发数</label><input type="number" name="max_concurrent" value="${global_max_concurrent}" placeholder="2"></div>
+      <div class="row"><label>超时时间（秒）</label><input type="number" name="timeout_seconds" value="${global_timeout_seconds}" placeholder="180"></div>
+      <div class="row"><label>最大循环次数</label><input type="number" name="repair_max_loops" value="${global_repair_max_loops}" min="1" max="10" placeholder="3"></div>
+      <button class="btn primary" type="submit">保存全局配置</button>
+    </form>
+  </section>
+  <section class="panel">
+    <h2>新建项目配置</h2>
+    <form method="post" action="/config/save">
+      <input type="hidden" name="config_id" value="">
+      <input type="hidden" name="chat_id" value="">
+      <div class="row"><label>激活</label><input type="checkbox" name="enabled" value="1"></div>
+      <div class="row"><label>AI配置组</label><select name="ai_config_id">${ai_config_options_html}</select></div>
+      <div class="row"><label>群名</label><input type="text" name="chat_name" value="${defaults_chat_name}" placeholder="必填"></div>
+      <div class="row"><label>飞书Cli应用id</label><input type="text" name="app_name" value="${defaults_app_name}" placeholder="必填"></div>
+      <div class="row"><label>多维表格名称</label><input type="text" name="base_name" value="${defaults_base_name}" placeholder="例如：自动化修bug测试"></div>
+      <div class="row"><label>状态字段名称</label><input type="text" name="status_field_name" value="${defaults_status_field_name}"></div>
+      <div class="row"><label>完成状态值</label><input type="text" name="done_status_value" value="${defaults_done_status_value}"></div>
+      <div class="row"><label>可处理状态值</label><textarea name="processable_status_values">${defaults_processable_status_values}</textarea></div>
+      <div class="row"><label>修复版本</label><input type="text" name="repair_version" value="${defaults_repair_version}" placeholder="需匹配多维表格“修复版本”字段"></div>
+      <div class="row"><label>自动修复模式</label><select name="auto_repair_mode">${defaults_auto_repair_mode_options}</select></div>
+      <div class="row"><label>开始时间</label><input type="time" name="auto_repair_start_time" value="${defaults_auto_repair_start_time}"></div>
+      <div class="row"><label>结束日期</label><select name="auto_repair_end_day_offset">${defaults_auto_repair_end_day_options}</select></div>
+      <div class="row"><label>结束时间</label><input type="time" name="auto_repair_end_time" value="${defaults_auto_repair_end_time}"></div>
+      <div class="row"><label>上下文收集命令</label><div><textarea name="context_collect_commands">${defaults_context_collect_commands}</textarea><p class="muted">每行一条命令，在当前任务 worktree 路径下执行，结果会注入首次 Prompt 的 <code>{{context_snapshot}}</code>。支持占位符：<code>{{issue_summary}}</code>、<code>{{record_id}}</code>、<code>{{branch_name}}</code>、<code>{{worktree_path}}</code>、<code>{{workroot_name}}</code>、<code>{{repair_version}}</code>。</p></div></div>
+      <div class="row"><label>验证命令</label><div><textarea name="verify_commands">${defaults_verify_commands}</textarea><p class="muted">每行一条命令，在 AI 声明完成且已有 diff 后执行，失败输出会注入二次 Prompt 的 <code>{{verify_output}}</code>。默认 <code>git diff --check</code>，可追加 <code>npm test</code>、<code>npm run build</code>、<code>python3 -m py_compile path/to/file.py</code> 等。</p></div></div>
+      <div class="row"><label>git 路径</label><input type="text" name="repo_root" value="${defaults_repo_root}" placeholder="/path/to/repo"></div>
+      <div class="row"><label>基于的分支</label><input type="text" name="base_branch" value="${defaults_base_branch}"></div>
+      <div class="row"><label>分支前缀</label><input type="text" name="branch_prefix" value="${defaults_branch_prefix}"></div>
+      <div class="row"><label>修改存放路径</label><input type="text" name="worktree_root" value="${defaults_worktree_root}" placeholder=".worktrees 或绝对路径"></div>
+      <div class="row"><label>WorkRoot名称</label><input type="text" name="workroot_name" value="${defaults_workroot_name}" placeholder="自定义别名"></div>
+      <button class="btn primary" type="submit">保存项目配置</button>
+    </form>
+  </section>
+</div>
+
+<section class="panel" style="margin-top:16px;">
+  <h2>项目配置列表</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th><th>WorkRoot</th><th>AI配置组</th><th>群名</th><th>多维表格名称</th><th>修复版本</th><th>自动修复时间</th><th>激活</th><th>运行</th><th>REPO_ROOT</th><th>基准分支</th><th>分支前缀</th><th>操作</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${config_rows_html}
+    </tbody>
+  </table>
+</section>

@@ -1,0 +1,42 @@
+${message_block}
+<div class="grid two-col">
+  <section class="panel">
+    <h2>搜索 CLI</h2>
+    <p class="muted">扫描 PATH 和常见安装路径，只生成当前系统使用的配置组，不修改任何 CLI 全局配置。</p>
+    <form method="post" action="/ai/scan">
+      <button class="btn primary" type="submit">搜索 CLI</button>
+    </form>
+  </section>
+  <section class="panel">
+    <h2>${form_heading}</h2>
+    <form method="post" action="/ai/save">
+      <input type="hidden" name="ai_config_id" value="${ai_config_id}">
+      <div class="row"><label>启用</label><input type="checkbox" name="enabled" value="1"${enabled_checked}></div>
+      <div class="row"><label>配置组名称</label><input type="text" name="name" value="${name}" placeholder="例如：Codex / GPT 默认"></div>
+      <div class="row"><label>CLI 后端</label><select name="cli_type">${cli_type_options}</select></div>
+      <div class="row"><label>CLI 路径</label><input type="text" name="cli_path" value="${cli_path}" placeholder="留空则自动搜索"></div>
+      <div class="row"><label>AI 大脑</label><select name="ai_provider">${ai_provider_options}</select></div>
+      <div class="row"><label>模型名</label><input type="text" name="model_name" value="${model_name}" placeholder="留空表示 CLI 默认模型"></div>
+      <div class="row"><label>API Key 环境变量名</label><input type="text" name="api_key_env" value="${api_key_env}" placeholder="例如 OPENAI_API_KEY，仅保存变量名"></div>
+      <div class="row"><label>CLI 私有配置目录</label><input type="text" name="config_home" value="${config_home}" placeholder="可选，仅对子进程生效"></div>
+      <div class="row"><label>配置目录环境变量</label><input type="text" name="config_home_env" value="${config_home_env}" placeholder="例如 CODEX_HOME"></div>
+      <div class="row"><label>额外 CLI 参数</label><input type="text" name="extra_args" value="${extra_args}" placeholder="例如 --search"></div>
+      <div class="row"><label>自定义命令模板</label><textarea name="command_template" placeholder="{cli} --model {model} -p {prompt}">${command_template}</textarea></div>
+      <button class="btn primary" type="submit">保存 AI 配置组</button>
+    </form>
+  </section>
+</div>
+
+<section class="panel" style="margin-top:16px;">
+  <h2>AI 配置组列表</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th><th>名称</th><th>CLI</th><th>路径</th><th>AI大脑</th><th>模型</th><th>Key变量</th><th>配置目录</th><th>启用</th><th>自检</th><th>说明</th><th>操作</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${config_rows_html}
+    </tbody>
+  </table>
+</section>

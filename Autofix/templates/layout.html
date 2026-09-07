@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>${page_title}</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f7fb;
+      --panel: #ffffff;
+      --line: #d9dee8;
+      --text: #182230;
+      --muted: #667085;
+      --accent: #2563eb;
+      --danger: #dc2626;
+      --ok: #059669;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font: 14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+      color: var(--text);
+      background: var(--bg);
+    }
+    header {
+      padding: 20px 24px 12px;
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+    h1,h2,h3,p { margin: 0 0 12px; }
+    main { padding: 20px 24px 40px; max-width: 1600px; margin: 0 auto; }
+    .grid { display: grid; gap: 16px; }
+    .two-col { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .muted { color: var(--muted); }
+    .row { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 10px; align-items: start; margin-bottom: 10px; }
+    label { font-weight: 600; }
+    input[type=text], input[type=number], input[type=time], select, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 8px 10px;
+      font: inherit;
+      background: #fff;
+    }
+    textarea { min-height: 100px; resize: vertical; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; text-align: left; }
+    th { position: sticky; top: 69px; background: #fff; z-index: 1; }
+    .actions form { display: inline; margin-right: 6px; }
+    .btn {
+      appearance: none;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--text);
+      border-radius: 6px;
+      padding: 7px 10px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .btn.danger { background: var(--danger); color: #fff; border-color: var(--danger); }
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #eef2ff;
+      color: #3730a3;
+      font-size: 12px;
+      margin-right: 4px;
+    }
+    pre {
+      margin: 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+      background: #0b1020;
+      color: #e5e7eb;
+      padding: 14px;
+      border-radius: 8px;
+      overflow: auto;
+    }
+    .split {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+    details.collapsible > summary {
+      cursor: pointer;
+      font-weight: 600;
+      margin: -16px -16px 12px;
+      padding: 16px;
+      list-style: none;
+    }
+    details.collapsible > summary::-webkit-details-marker {
+      display: none;
+    }
+    details.collapsible[open] > summary {
+      border-bottom: 1px solid var(--line);
+    }
+    .status-ok { color: var(--ok); font-weight: 600; }
+    .status-bad { color: var(--danger); font-weight: 600; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>${page_title}</h1>
+    <div class="header-actions">${header_actions_html}</div>
+    <div class="muted">本地单进程管理台，支持多个激活项目配置同时运行</div>
+  </header>
+  <main>
+    ${body}
+  </main>
+  <script>
+    (function() {
+      const terminalStatuses = new Set(['succeeded', 'failed', 'base_update_failed', '超时', '状态不支持', '拒绝修复', '无需修复']);
+      let audioContext = null;
+      let unlocked = false;
+      let lastPlayedAt = 0;
+
+      function getAudioContext() {
+        if (!audioContext) {
+          const AudioCtor = window.AudioContext || window.webkitAudioContext;
+          if (!AudioCtor) return null;
+          audioContext = new AudioCtor();
+        }
+        return audioContext;
+      }
+
+      function unlockAudio() {
+        const ctx = getAudioContext();
+        if (!ctx) return;
+        const resume = ctx.state === 'suspended' ? ctx.resume() : Promise.resolve();
+        resume.then(function() {
+          unlocked = true;
+        }).catch(function() {});
+      }
+
+      function playTaskComplete() {
+        const now = Date.now();
+        const ctx = getAudioContext();
+        if (!ctx) return;
+        if (ctx.state === 'suspended') {
+          ctx.resume().then(playTaskComplete).catch(function() {});
+          return;
+        }
+        if (now - lastPlayedAt < 1200) return;
+        lastPlayedAt = now;
+        const start = ctx.currentTime;
+        const duration = 0.85;
+        const master = ctx.createGain();
+        master.gain.setValueAtTime(0.0001, start);
+        master.gain.exponentialRampToValueAtTime(0.18, start + 0.08);
+        master.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+        master.connect(ctx.destination);
+
+        const bufferSize = Math.floor(ctx.sampleRate * duration);
+        const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        const data = noiseBuffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i += 1) {
+          const t = i / bufferSize;
+          data[i] = (Math.random() * 2 - 1) * Math.pow(1 - t, 1.8) * 0.35;
+        }
+        const noise = ctx.createBufferSource();
+        noise.buffer = noiseBuffer;
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(900, start);
+        filter.frequency.exponentialRampToValueAtTime(2400, start + duration);
+        filter.Q.setValueAtTime(0.8, start);
+        noise.connect(filter);
+        filter.connect(master);
+        noise.start(start);
+        noise.stop(start + duration);
+
+        [523.25, 659.25, 783.99].forEach(function(freq, index) {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, start + index * 0.055);
+          gain.gain.setValueAtTime(0.0001, start + index * 0.055);
+          gain.gain.exponentialRampToValueAtTime(0.055, start + index * 0.055 + 0.035);
+          gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+          osc.connect(gain);
+          gain.connect(master);
+          osc.start(start + index * 0.055);
+          osc.stop(start + duration);
+        });
+      }
+
+      document.addEventListener('pointerdown', unlockAudio, { once: true, capture: true });
+      document.addEventListener('keydown', unlockAudio, { once: true, capture: true });
+
+      window.AutofixSound = {
+        didEnterTerminal: function(previousStatus, nextStatus) {
+          return !terminalStatuses.has(previousStatus) && terminalStatuses.has(nextStatus);
+        },
+        playTaskComplete: playTaskComplete,
+      };
+    })();
+  </script>
+  ${page_script_html}
+</body>
+</html>

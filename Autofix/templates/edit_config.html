@@ -1,0 +1,30 @@
+<p><a class="btn" href="/">返回</a></p>
+${message_block}
+<section class="panel">
+  <h2>${page_heading}</h2>
+  <form method="post" action="/config/save">
+    <input type="hidden" name="config_id" value="${config_id}">
+    <input type="hidden" name="chat_id" value="${hidden_chat_id}">
+    <div class="row"><label>激活</label><input type="checkbox" name="enabled" value="1"${config_enabled_checked}></div>
+    <div class="row"><label>AI配置组</label><select name="ai_config_id">${ai_config_options_html}</select></div>
+    <div class="row"><label>群名</label><input type="text" name="chat_name" value="${chat_name}"></div>
+    <div class="row"><label>飞书Cli应用id</label><input type="text" name="app_name" value="${app_name}"></div>
+    <div class="row"><label>多维表格名称</label><input type="text" name="base_name" value="${base_name}"></div>
+    <div class="row"><label>状态字段名称</label><input type="text" name="status_field_name" value="${status_field_name}"></div>
+    <div class="row"><label>完成状态值</label><input type="text" name="done_status_value" value="${done_status_value}"></div>
+    <div class="row"><label>可处理状态值</label><textarea name="processable_status_values">${processable_status_values}</textarea></div>
+    <div class="row"><label>修复版本</label><input type="text" name="repair_version" value="${repair_version}"></div>
+    <div class="row"><label>自动修复模式</label><select name="auto_repair_mode">${auto_repair_mode_options}</select></div>
+    <div class="row"><label>开始时间</label><input type="time" name="auto_repair_start_time" value="${auto_repair_start_time}"></div>
+    <div class="row"><label>结束日期</label><select name="auto_repair_end_day_offset">${auto_repair_end_day_options}</select></div>
+    <div class="row"><label>结束时间</label><input type="time" name="auto_repair_end_time" value="${auto_repair_end_time}"></div>
+    <div class="row"><label>上下文收集命令</label><div><textarea name="context_collect_commands">${context_collect_commands}</textarea><p class="muted">每行一条命令，在当前任务 worktree 路径下执行，结果会注入首次 Prompt 的 <code>{{context_snapshot}}</code>。支持占位符：<code>{{issue_summary}}</code>、<code>{{record_id}}</code>、<code>{{branch_name}}</code>、<code>{{worktree_path}}</code>、<code>{{workroot_name}}</code>、<code>{{repair_version}}</code>。</p></div></div>
+    <div class="row"><label>验证命令</label><div><textarea name="verify_commands">${verify_commands}</textarea><p class="muted">每行一条命令，在 AI 声明完成且已有 diff 后执行，失败输出会注入二次 Prompt 的 <code>{{verify_output}}</code>。默认 <code>git diff --check</code>，可追加 <code>npm test</code>、<code>npm run build</code>、<code>python3 -m py_compile path/to/file.py</code> 等。</p></div></div>
+    <div class="row"><label>git 路径</label><input type="text" name="repo_root" value="${repo_root}"></div>
+    <div class="row"><label>基于的分支</label><input type="text" name="base_branch" value="${base_branch}"></div>
+    <div class="row"><label>分支前缀</label><input type="text" name="branch_prefix" value="${branch_prefix}"></div>
+    <div class="row"><label>修改存放路径</label><input type="text" name="worktree_root" value="${worktree_root}"></div>
+    <div class="row"><label>WorkRoot名称</label><input type="text" name="workroot_name" value="${workroot_name}"></div>
+    <button class="btn primary" type="submit">保存项目配置</button>
+  </form>
+</section>

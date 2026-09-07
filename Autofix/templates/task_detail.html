@@ -1,0 +1,51 @@
+<p><a class="btn" href="/">返回</a></p>
+<section class="panel">
+  <h2>任务 #${task_id}</h2>
+  <p><span class="tag">${workroot_name}</span><span class="tag" data-task-status>${status}</span></p>
+  <p>AI配置组: <code>${ai_config_name}</code></p>
+  <p>CLI: <code>${cli_type}</code> / <code>${cli_path}</code></p>
+  <p>AI大脑: <code>${ai_provider}</code> / <code>${ai_model}</code></p>
+  <p>记录ID: <code>${record_id}</code></p>
+  <p>分支: <code>${branch_name}</code></p>
+  <p>Worktree: <code>${worktree_path}</code></p>
+  <p>修复版本: <code>${repair_version}</code></p>
+  <p>状态字段: <code>${status_field_name}</code> -> <code>${done_status_value}</code></p>
+  <p>修复轮次: <code id="task-round-count">${round_count}</code></p>
+  <div class="actions" id="task-actions">
+    ${actions_html}
+  </div>
+</section>
+${feishu_echo_html}
+<section class="panel" style="margin-top:16px;">
+  <h2>摘要</h2>
+  <p><strong>修复思路:</strong> <span id="task-repair-thinking-summary">${repair_thinking_summary}</span></p>
+  <p><strong>本轮处理:</strong> <span id="task-round-action-summary">${round_action_summary}</span></p>
+  <p><strong>验证情况:</strong> <span id="task-round-validation-summary">${round_validation_summary}</span></p>
+  <p><strong>风险说明:</strong> <span id="task-round-risk-summary">${round_risk_summary}</span></p>
+  <p id="task-summary">${summary}</p>
+  <p class="muted">状态: <span id="task-status-text">${status}</span>; commit: <code id="task-commit-sha">${commit_sha}</code>; error: <span id="task-error">${error}</span></p>
+</section>
+<div class="split" style="margin-top:16px;">
+  <details class="collapsible panel" open>
+    <summary>AI 输入</summary>
+    <pre id="task-prompt-text">${prompt_text}</pre>
+  </details>
+  <details class="collapsible panel" open>
+    <summary>AI 输出</summary>
+    <pre id="task-reply-text">${reply_text}</pre>
+  </details>
+</div>
+<div class="split" style="margin-top:16px;">
+  <details class="collapsible panel">
+    <summary>上下文快照</summary>
+    <pre id="task-context-snapshot-text">${context_snapshot}</pre>
+  </details>
+  <details class="collapsible panel">
+    <summary>工具层验证</summary>
+    <pre id="task-verify-output-text">${verify_output}</pre>
+  </details>
+</div>
+<details class="collapsible panel" open style="margin-top:16px;">
+  <summary>轮次历史</summary>
+  <pre id="task-round-history-text">${round_history_text}</pre>
+</details>
