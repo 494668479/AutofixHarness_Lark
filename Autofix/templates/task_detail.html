@@ -25,16 +25,10 @@ ${feishu_echo_html}
   <p id="task-summary">${summary}</p>
   <p class="muted">状态: <span id="task-status-text">${status}</span>; commit: <code id="task-commit-sha">${commit_sha}</code>; error: <span id="task-error">${error}</span></p>
 </section>
-<div class="split" style="margin-top:16px;">
-  <details class="collapsible panel" open>
-    <summary>AI 输入</summary>
-    <pre id="task-prompt-text">${prompt_text}</pre>
-  </details>
-  <details class="collapsible panel" open>
-    <summary>AI 输出</summary>
-    <pre id="task-reply-text">${reply_text}</pre>
-  </details>
-</div>
+<section class="panel" style="margin-top:16px;">
+  <h2>每轮修复详情</h2>
+  <div id="task-round-detail-html">${round_detail_html}</div>
+</section>
 <div class="split" style="margin-top:16px;">
   <details class="collapsible panel">
     <summary>上下文快照</summary>
@@ -45,7 +39,17 @@ ${feishu_echo_html}
     <pre id="task-verify-output-text">${verify_output}</pre>
   </details>
 </div>
-<details class="collapsible panel" open style="margin-top:16px;">
+<details class="collapsible panel" style="margin-top:16px;">
   <summary>轮次历史</summary>
   <pre id="task-round-history-text">${round_history_text}</pre>
 </details>
+<div class="split" style="margin-top:16px;">
+  <details class="collapsible panel">
+    <summary>AI 输入</summary>
+    <pre id="task-prompt-text">${prompt_text}</pre>
+  </details>
+  <details class="collapsible panel">
+    <summary>AI 输出</summary>
+    <pre id="task-reply-text">${reply_text}</pre>
+  </details>
+</div>
