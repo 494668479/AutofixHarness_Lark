@@ -34,6 +34,7 @@ from autofix_utils import (
     default_config_home_env,
     describe_auto_repair_window,
     normalize_auto_repair_mode,
+    normalize_text_value,
     parse_end_day_offset,
     parse_non_negative_int,
 )
@@ -331,6 +332,53 @@ def render_task_action_buttons(task: TaskRow) -> str:
     return "".join(parts)
 
 
+def render_round_detail_cards(round_history: list[dict[str, Any]]) -> str:
+    """把每轮结构化修复摘要渲染成独立折叠详情。
+
+    这里刻意不展示完整 Prompt 和 AI 输出；它们在任务详情页最下方单独展示。
+    每轮卡片只放用户判断本轮质量最需要看的结构化信息。
+    """
+
+    if not round_history:
+        return '<p class="muted">暂无轮次详情</p>'
+    cards: list[str] = []
+    for index, round_data in enumerate(round_history, start=1):
+        decision = normalize_text_value(round_data.get("decision")) or "未完成"
+        verify_output = normalize_text_value(round_data.get("verify_output"))
+        format_error = normalize_text_value(round_data.get("format_error"))
+        sections = [
+            ("修复思路", normalize_text_value(round_data.get("repair_thinking_summary")) or "无"),
+            ("本轮处理", normalize_text_value(round_data.get("round_action_summary")) or "无"),
+            ("验证情况", normalize_text_value(round_data.get("round_validation_summary")) or "无"),
+            ("风险说明", normalize_text_value(round_data.get("round_risk_summary")) or "无"),
+        ]
+        section_html = "\n".join(
+            f"<p><strong>{html.escape(title)}:</strong> {html.escape(value)}</p>"
+            for title, value in sections
+        )
+        verify_html = ""
+        if verify_output:
+            verify_label = "验证通过" if round_data.get("verify_ok") else "验证失败"
+            verify_html = f"""
+            <details class="collapsible" style="margin-top:12px;">
+              <summary>{html.escape(verify_label)}</summary>
+              <pre>{html.escape(verify_output)}</pre>
+            </details>
+            """
+        format_error_html = f'<p class="status-bad">格式问题: {html.escape(format_error)}</p>' if format_error else ""
+        cards.append(
+            f"""
+            <details class="collapsible panel">
+              <summary>第 {index} 轮 - {html.escape(decision)}</summary>
+              {section_html}
+              {format_error_html}
+              {verify_html}
+            </details>
+            """
+        )
+    return '<div class="grid round-detail-grid">' + "\n".join(cards) + "</div>"
+
+
 def task_detail_payload(task: TaskRow) -> dict[str, Any]:
     """把 TaskRow 转换成详情页和 `/api/task/<id>` 共用的 JSON 载荷。"""
 
@@ -351,6 +399,7 @@ def task_detail_payload(task: TaskRow) -> dict[str, Any]:
         "round_action_summary": task.round_action_summary or "无",
         "round_validation_summary": task.round_validation_summary or "无",
         "round_risk_summary": task.round_risk_summary or "无",
+        "round_detail_html": render_round_detail_cards(round_history),
         "round_history_text": summarize_repair_rounds(round_history) or "无",
         "feishu_received_status": "收到失败" if task.feishu_received_error else ("已收到" if task.feishu_received_at else "未收到"),
         "feishu_received_at": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(task.feishu_received_at)) if task.feishu_received_at else "未发送",
@@ -612,7 +661,6 @@ def render_task_detail(store: AutofixStore, task: TaskRow | None) -> str:
           <pre id="feishu-received-text">{html.escape(detail["feishu_received_text"])}</pre>
           <p id="feishu-received-error" class="status-bad">{html.escape(detail["feishu_received_error"])}</p>
           ''',
-          open_=True,
       )}
       {render_collapsible(
           "结果回显",
@@ -621,7 +669,6 @@ def render_task_detail(store: AutofixStore, task: TaskRow | None) -> str:
           <pre id="feishu-result-text">{html.escape(detail["feishu_result_text"])}</pre>
           <p id="feishu-result-error" class="status-bad">{html.escape(detail["feishu_result_error"])}</p>
           ''',
-          open_=True,
       )}
     </div>
     """
@@ -678,6 +725,7 @@ def render_task_detail(store: AutofixStore, task: TaskRow | None) -> str:
           setText('task-round-action-summary', task.round_action_summary || '无');
           setText('task-round-validation-summary', task.round_validation_summary || '无');
           setText('task-round-risk-summary', task.round_risk_summary || '无');
+          setHtml('task-round-detail-html', task.round_detail_html || '<p class="muted">暂无轮次详情</p>');
           setText('task-round-history-text', task.round_history_text || '无');
           setText('feishu-received-status', task.feishu_received_status);
           setText('feishu-received-at', task.feishu_received_at);
@@ -746,6 +794,7 @@ def render_task_detail(store: AutofixStore, task: TaskRow | None) -> str:
             round_action_summary=html.escape(detail["round_action_summary"]),
             round_validation_summary=html.escape(detail["round_validation_summary"]),
             round_risk_summary=html.escape(detail["round_risk_summary"]),
+            round_detail_html=detail["round_detail_html"],
             round_history_text=html.escape(detail["round_history_text"]),
             summary=html.escape(detail["summary"]),
             commit_sha=html.escape(detail["commit_sha"]),
